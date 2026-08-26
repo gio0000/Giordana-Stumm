@@ -77,11 +77,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Giordana Stumm | Dev Back-end Java & Programação de Produção" },
+      {
+        name: "description",
+        content:
+          "Portfólio de Giordana Stumm: desenvolvedora back-end Java e analista de Programação de Produção na Nestlé Carazinho/RS.",
+      },
+      { name: "author", content: "Giordana Stumm" },
+      { property: "og:title", content: "Giordana Stumm | Dev Back-end & Produção" },
+      {
+        property: "og:description",
+        content:
+          "Back-end Java, APIs REST e dados aplicados à Programação de Produção na Nestlé Carazinho/RS.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
