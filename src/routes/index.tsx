@@ -309,22 +309,10 @@ function Index() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
-              emoji: "🏭",
-              title: "Painel de Indicadores de Produção",
-              desc: "Estudo aplicado à rotina de programação de produção: consolidação de dados, cálculo de indicadores e visualização de desempenho das linhas.",
-              tags: ["Python", "SQL", "Dados"],
-            },
-            {
-              emoji: "📦",
-              title: "Automação de Rotinas de Planejamento",
-              desc: "Scripts para tratar planilhas, cruzar demanda e materiais e gerar relatórios de apoio à programação da produção.",
-              tags: ["Python", "Excel", "Automação"],
-            },
-            {
-              emoji: "🚀",
-              title: "Site Stack Solutions",
-              desc: "Website institucional moderno e responsivo, apresentando serviços, projetos e canais de contato.",
-              tags: ["React", "TypeScript", "Tailwind"],
+              emoji: "🛒",
+              title: "E-commerce de Guitarras",
+              desc: "Aplicação web com integração entre front-end e back-end, banco de dados e regras de negócio.",
+              tags: ["HTML", "CSS", "JavaScript"],
             },
             {
               emoji: "🎸",
@@ -339,28 +327,10 @@ function Index() {
               tags: ["Java", "POO", "Simulação"],
             },
             {
-              emoji: "🛒",
-              title: "E-commerce de Guitarras",
-              desc: "Aplicação web com integração entre front-end e back-end, banco de dados e regras de negócio.",
-              tags: ["HTML", "CSS", "JavaScript"],
-            },
-            {
-              emoji: "💎",
-              title: "Landing Page – Loja de Joias",
-              desc: "Design elegante e responsivo, seção de benefícios e apresentação de produtos. Pacote Premium da Stack Solutions.",
-              tags: ["HTML", "CSS", "JavaScript"],
-            },
-            {
-              emoji: "👗",
-              title: "Landing Page – Loja de Roupas",
-              desc: "Foco em conversão e experiência do usuário, com destaques de coleção e área de contato. Pacote Profissional.",
-              tags: ["HTML", "CSS", "JavaScript"],
-            },
-            {
-              emoji: "🌱",
-              title: "Site de Máquinas Agrícolas",
-              desc: "Website institucional responsivo com foco em apresentação comercial e estrutura organizada.",
-              tags: ["Web", "Database", "Admin"],
+              emoji: "⚙️",
+              title: "API REST em Spring Boot",
+              desc: "API robusta construída com Java e Spring Boot, com arquitetura em camadas, persistência de dados e endpoints RESTful.",
+              tags: ["Java", "Spring Boot", "API REST"],
             },
           ].map((p) => (
             <article
