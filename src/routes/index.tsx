@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Factory,
   Code2,
@@ -18,8 +18,10 @@ import {
   Wrench,
   Menu,
   X,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { translations, type Language } from "@/lib/translations";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,17 +45,20 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const NAV = [
-  { id: "sobre", label: "Sobre" },
-  { id: "experiencia", label: "Experiência" },
-  { id: "projetos", label: "Projetos" },
-  { id: "servicos", label: "Serviços" },
-  { id: "habilidades", label: "Habilidades" },
-  { id: "formacao", label: "Formação" },
-  { id: "contato", label: "Contato" },
-];
-
 const WHATSAPP = "https://wa.me/5554999527071";
+
+const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Factory,
+  Code2,
+  BarChart3,
+  GraduationCap,
+  Briefcase,
+  Sparkles,
+  Database,
+  Boxes,
+  Wrench,
+  Cpu,
+};
 
 function SectionTitle({
   eyebrow,
@@ -83,8 +88,55 @@ function Chip({ children, tone = "primary" }: { children: React.ReactNode; tone?
   );
 }
 
+function LanguageButton({
+  lang,
+  toggleLang,
+  t,
+}: {
+  lang: Language;
+  toggleLang: () => void;
+  t: (typeof translations)["pt"];
+}) {
+  return (
+    <button
+      onClick={toggleLang}
+      aria-label={t.langToggle.label}
+      className="flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+    >
+      <Globe className="size-3.5" />
+      <span className={lang === "pt" ? "text-primary" : ""}>{t.langToggle.pt}</span>
+      <span className="text-border">/</span>
+      <span className={lang === "en" ? "text-primary" : ""}>{t.langToggle.en}</span>
+    </button>
+  );
+}
+
 function Index() {
   const [open, setOpen] = useState(false);
+  const [lang, setLang] = useState<Language>("pt");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("giordana-lang") as Language | null;
+    if (saved === "pt" || saved === "en") setLang(saved);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("giordana-lang", lang);
+    document.documentElement.lang = lang === "pt" ? "pt-BR" : "en";
+  }, [lang]);
+
+  const t = translations[lang];
+  const toggleLang = () => setLang((l) => (l === "pt" ? "en" : "pt"));
+
+  const nav = [
+    { id: "sobre", label: t.nav.sobre },
+    { id: "experiencia", label: t.nav.experiencia },
+    { id: "projetos", label: t.nav.projetos },
+    { id: "servicos", label: t.nav.servicos },
+    { id: "habilidades", label: t.nav.habilidades },
+    { id: "formacao", label: t.nav.formacao },
+    { id: "contato", label: t.nav.contato },
+  ];
 
   return (
     <div className="min-h-screen">
@@ -94,7 +146,7 @@ function Index() {
             Giordana<span className="text-primary">.dev</span>
           </a>
           <nav className="hidden items-center gap-6 md:flex">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <a
                 key={n.id}
                 href={`#${n.id}`}
@@ -103,18 +155,22 @@ function Index() {
                 {n.label}
               </a>
             ))}
+            <LanguageButton lang={lang} toggleLang={toggleLang} t={t} />
           </nav>
-          <button
-            className="md:hidden"
-            aria-label="Abrir menu"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
+          <div className="flex items-center gap-3 md:hidden">
+            <LanguageButton lang={lang} toggleLang={toggleLang} t={t} />
+            <button
+              className="md:hidden"
+              aria-label={open ? "Fechar menu" : "Abrir menu"}
+              onClick={() => setOpen((v) => !v)}
+            >
+              {open ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
         </div>
         {open ? (
           <nav className="grid gap-1 border-t border-border/60 px-5 py-3 md:hidden">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <a
                 key={n.id}
                 href={`#${n.id}`}
@@ -133,61 +189,40 @@ function Index() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
             <div className="mb-6 flex flex-wrap gap-2">
-              <Chip tone="industry">Nestlé · Carazinho/RS</Chip>
-              <Chip>Back-end Java</Chip>
+              <Chip tone="industry">{t.hero.tagNestle}</Chip>
+              <Chip>{t.hero.tagBackend}</Chip>
             </div>
-            <p className="eyebrow">Olá, eu sou</p>
+            <p className="eyebrow">{t.hero.eyebrow}</p>
             <h1 className="mt-3 text-5xl font-bold leading-[1.05] sm:text-6xl">
               Giordana <span className="text-gradient">Stumm</span>
             </h1>
-            <p className="mt-5 font-display text-lg text-foreground/90 sm:text-xl">
-              Programação de Produção na Nestlé · Desenvolvedora Back-end Java
-            </p>
-            <p className="mt-5 max-w-xl text-muted-foreground">
-              Atuo no setor de Programação de Produção da Nestlé em Carazinho/RS, planejando e
-              organizando a produção com base em dados, indicadores e regras de negócio reais da
-              indústria. Como Técnica em TI e desenvolvedora back-end, uno esses dois mundos:
-              transformo processos produtivos em sistemas, automações e análises com Java, Python,
-              SQL e APIs REST.
-            </p>
+            <p className="mt-5 font-display text-lg text-foreground/90 sm:text-xl">{t.hero.role}</p>
+            <p className="mt-5 max-w-xl text-muted-foreground">{t.hero.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button variant="hero" size="lg" asChild>
-                <a href="#projetos">Ver Projetos</a>
+                <a href="#projetos">{t.hero.ctaProjects}</a>
               </Button>
               <Button variant="heroOutline" size="lg" asChild>
-                <a href="#contato">Entrar em Contato</a>
+                <a href="#contato">{t.hero.ctaContact}</a>
               </Button>
             </div>
           </div>
 
           <div className="surface-card rounded-2xl p-6">
-            <p className="eyebrow">Onde eu atuo hoje</p>
+            <p className="eyebrow">{t.hero.todayTitle}</p>
             <div className="mt-5 grid gap-4">
-              {[
-                {
-                  icon: Factory,
-                  title: "Indústria",
-                  text: "Programação de produção, planejamento e rotinas de fábrica na Nestlé Carazinho/RS.",
-                },
-                {
-                  icon: Code2,
-                  title: "Software",
-                  text: "Back-end em Java e Python, APIs REST e arquitetura em camadas.",
-                },
-                {
-                  icon: BarChart3,
-                  title: "Dados",
-                  text: "SQL, indicadores de produção, análise de dados e Machine Learning.",
-                },
-              ].map((i) => (
-                <div key={i.title} className="flex gap-4 rounded-xl bg-secondary/50 p-4">
-                  <i.icon className="mt-0.5 size-5 shrink-0 text-primary" />
-                  <div>
-                    <h3 className="font-display text-sm font-semibold">{i.title}</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">{i.text}</p>
+              {t.hero.todayCards.map((i) => {
+                const Icon = ICONS[i.iconKey];
+                return (
+                  <div key={i.title} className="flex gap-4 rounded-xl bg-secondary/50 p-4">
+                    <Icon className="mt-0.5 size-5 shrink-0 text-primary" />
+                    <div>
+                      <h3 className="font-display text-sm font-semibold">{i.title}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{i.text}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -196,55 +231,26 @@ function Index() {
       {/* SOBRE */}
       <section id="sobre" className="mx-auto max-w-6xl px-5 py-20">
         <SectionTitle
-          eyebrow="Conheça"
-          title="Sobre Mim"
-          subtitle="Tecnologia com pé na realidade da produção: entendo o processo por dentro e sei como transformá-lo em sistema."
+          eyebrow={t.about.eyebrow}
+          title={t.about.title}
+          subtitle={t.about.subtitle}
         />
         <div className="grid gap-6 md:grid-cols-2">
           <div className="surface-card rounded-2xl p-6">
-            <p className="text-muted-foreground">
-              Trabalho na Nestlé de Carazinho/RS, no setor de Programação de Produção, onde lido
-              diariamente com planejamento, sequenciamento, controle de materiais e indicadores.
-              Essa vivência industrial me deu algo que dificilmente se aprende só em código:
-              entender de verdade a regra de negócio antes de escrevê-la.
-            </p>
-            <p className="mt-4 text-muted-foreground">
-              Sou Técnica em Informática e desenvolvedora com foco em back-end. Desenvolvo com
-              Java, Python, APIs REST, bancos de dados relacionais e Programação Orientada a
-              Objetos, com base em Front-end (HTML, CSS e JavaScript) para integrar as camadas da
-              aplicação. Também estudo Ciência de Dados, com Machine Learning e análise de dados
-              aplicados a cenários produtivos.
-            </p>
+            <p className="text-muted-foreground">{t.about.text1}</p>
+            <p className="mt-4 text-muted-foreground">{t.about.text2}</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              {
-                icon: Factory,
-                title: "Atuação Atual",
-                text: "Programação de Produção na Nestlé Carazinho/RS: planejamento, sequenciamento e acompanhamento de produção.",
-              },
-              {
-                icon: GraduationCap,
-                title: "Formação",
-                text: "Técnica em Informática (Senac RS) e formação em Ciência de Dados com ênfase em Machine Learning.",
-              },
-              {
-                icon: Briefcase,
-                title: "Empreendedorismo",
-                text: "Proprietária da Stack Solutions, com soluções em software, web e manutenção de computadores.",
-              },
-              {
-                icon: Sparkles,
-                title: "Diferencial",
-                text: "União entre indústria e TI: dados de produção, automação de rotinas e visão analítica de processos.",
-              },
-            ].map((c) => (
-              <div key={c.title} className="surface-card rounded-2xl p-5">
-                <c.icon className="size-5 text-primary" />
-                <h3 className="mt-4 font-display text-base font-semibold">{c.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{c.text}</p>
-              </div>
-            ))}
+            {t.about.cards.map((c) => {
+              const Icon = ICONS[c.iconKey];
+              return (
+                <div key={c.title} className="surface-card rounded-2xl p-5">
+                  <Icon className="size-5 text-primary" />
+                  <h3 className="mt-4 font-display text-base font-semibold">{c.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{c.text}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -252,48 +258,35 @@ function Index() {
       {/* EXPERIENCIA */}
       <section id="experiencia" className="mx-auto max-w-6xl px-5 py-20">
         <SectionTitle
-          eyebrow="Trajetória"
-          title="Experiência Profissional"
-          subtitle="Indústria e desenvolvimento caminhando juntos."
+          eyebrow={t.experience.eyebrow}
+          title={t.experience.title}
+          subtitle={t.experience.subtitle}
         />
         <div className="grid gap-6">
           <article className="surface-card rounded-2xl p-6">
             <div className="flex flex-wrap items-center gap-3">
-              <Chip tone="industry">Atual</Chip>
+              <Chip tone="industry">{t.experience.currentTag}</Chip>
               <span className="text-xs text-muted-foreground">Carazinho/RS</span>
             </div>
-            <h3 className="mt-4 text-xl font-semibold">
-              Programação de Produção — Nestlé
-            </h3>
-            <p className="mt-3 text-muted-foreground">
-              Atuação no setor de Programação de Produção, apoiando o planejamento e a execução do
-              plano produtivo da unidade.
-            </p>
+            <h3 className="mt-4 text-xl font-semibold">{t.experience.nestle.title}</h3>
+            <p className="mt-3 text-muted-foreground">{t.experience.nestle.intro}</p>
             <ul className="mt-4 grid gap-2 text-sm text-muted-foreground">
-              <li>• Programação e sequenciamento de ordens de produção</li>
-              <li>• Acompanhamento de demanda, materiais e capacidade das linhas</li>
-              <li>• Controle e análise de indicadores de produção com planilhas e SQL</li>
-              <li>• Comunicação direta com produção, qualidade e logística</li>
-              <li>• Automação de rotinas e relatórios para ganho de tempo do time</li>
+              {t.experience.nestle.items.map((item, idx) => (
+                <li key={idx}>• {item}</li>
+              ))}
             </ul>
           </article>
 
           <article className="surface-card rounded-2xl p-6">
             <div className="flex flex-wrap items-center gap-3">
-              <Chip>Paralelo</Chip>
+              <Chip>{t.experience.sideTag}</Chip>
             </div>
-            <h3 className="mt-4 text-xl font-semibold">
-              Proprietária e Desenvolvedora — Stack Solutions
-            </h3>
-            <p className="mt-3 text-muted-foreground">
-              Fundadora e desenvolvedora principal, atuando em sistemas, aplicações web e soluções
-              técnicas para pequenos negócios.
-            </p>
+            <h3 className="mt-4 text-xl font-semibold">{t.experience.stack.title}</h3>
+            <p className="mt-3 text-muted-foreground">{t.experience.stack.intro}</p>
             <ul className="mt-4 grid gap-2 text-sm text-muted-foreground">
-              <li>• Desenvolvimento back-end e web com Java, Python, SQL e APIs REST</li>
-              <li>• Sistemas orientados a regras de negócio e organização de código</li>
-              <li>• Integração e modelagem de bancos de dados</li>
-              <li>• Montagem e manutenção de hardware para clientes</li>
+              {t.experience.stack.items.map((item, idx) => (
+                <li key={idx}>• {item}</li>
+              ))}
             </ul>
           </article>
         </div>
@@ -302,37 +295,12 @@ function Index() {
       {/* PROJETOS */}
       <section id="projetos" className="mx-auto max-w-6xl px-5 py-20">
         <SectionTitle
-          eyebrow="Meu Trabalho"
-          title="Projetos"
-          subtitle="Trabalhos de desenvolvimento e aplicações de tecnologia a processos reais."
+          eyebrow={t.projects.eyebrow}
+          title={t.projects.title}
+          subtitle={t.projects.subtitle}
         />
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              emoji: "🛒",
-              title: "E-commerce de Guitarras",
-              desc: "Aplicação web com integração entre front-end e back-end, banco de dados e regras de negócio.",
-              tags: ["HTML", "CSS", "JavaScript"],
-            },
-            {
-              emoji: "🎸",
-              title: "Pedaleira Digital para Guitarras",
-              desc: "Sistema em Python com processamento de áudio em tempo real, efeitos sonoros e lógica de negócio organizada.",
-              tags: ["Python", "Qt Designer", "Áudio"],
-            },
-            {
-              emoji: "🪐",
-              title: "Planetário Interativo",
-              desc: "Aplicação em Java com lógica matemática, simulação de sistemas e visualização interativa.",
-              tags: ["Java", "POO", "Simulação"],
-            },
-            {
-              emoji: "⚙️",
-              title: "API REST em Spring Boot",
-              desc: "API robusta construída com Java e Spring Boot, com arquitetura em camadas, persistência de dados e endpoints RESTful.",
-              tags: ["Java", "Spring Boot", "API REST"],
-            },
-          ].map((p) => (
+          {t.projects.items.map((p) => (
             <article
               key={p.title}
               className="surface-card group rounded-2xl p-6 transition-transform hover:-translate-y-1"
@@ -341,8 +309,8 @@ function Index() {
               <h3 className="mt-4 font-display text-lg font-semibold">{p.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{p.desc}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {p.tags.map((t) => (
-                  <Chip key={t}>{t}</Chip>
+                {p.tags.map((tag) => (
+                  <Chip key={tag}>{tag}</Chip>
                 ))}
               </div>
             </article>
@@ -353,51 +321,29 @@ function Index() {
       {/* SERVICOS */}
       <section id="servicos" className="mx-auto max-w-6xl px-5 py-20">
         <SectionTitle
-          eyebrow="Stack Solutions"
-          title="Serviços"
-          subtitle="Soluções em desenvolvimento de software, dados e suporte técnico."
+          eyebrow={t.services.eyebrow}
+          title={t.services.title}
+          subtitle={t.services.subtitle}
         />
         <div className="grid gap-5 sm:grid-cols-2">
-          {[
-            {
-              icon: Database,
-              title: "Desenvolvimento de Sistemas",
-              items: ["Lógica de Negócio", "Banco de Dados", "APIs REST", "Código Organizado"],
-              text: "Criação de sistemas e APIs com foco em organização, desempenho e escalabilidade.",
-            },
-            {
-              icon: Boxes,
-              title: "Automação & Dados",
-              items: ["Planilhas", "Relatórios", "Indicadores", "Python + SQL"],
-              text: "Automação de rotinas operacionais e relatórios para times de produção e planejamento.",
-            },
-            {
-              icon: Code2,
-              title: "Apps & Landing Pages",
-              items: ["UX/UI", "Mobile First", "Performance", "Integração"],
-              text: "Aplicações web e landing pages funcionais, rápidas e otimizadas.",
-            },
-            {
-              icon: Wrench,
-              title: "Manutenção de Computadores",
-              items: ["Formatação", "Upgrade", "Limpeza", "Montagem"],
-              text: "Serviços completos de hardware para o seu equipamento.",
-            },
-          ].map((s) => (
-            <div key={s.title} className="surface-card rounded-2xl p-6">
-              <s.icon className="size-5 text-primary" />
-              <h3 className="mt-4 font-display text-lg font-semibold">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {s.items.map((i) => (
-                  <Chip key={i}>{i}</Chip>
-                ))}
+          {t.services.items.map((s) => {
+            const Icon = ICONS[s.iconKey];
+            return (
+              <div key={s.title} className="surface-card rounded-2xl p-6">
+                <Icon className="size-5 text-primary" />
+                <h3 className="mt-4 font-display text-lg font-semibold">{s.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{s.text}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {s.items.map((i) => (
+                    <Chip key={i}>{i}</Chip>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <p className="mt-8 text-sm text-muted-foreground">
-          WhatsApp:{" "}
+          {t.services.whatsappLabel}{" "}
           <a className="text-primary hover:underline" href={WHATSAPP}>
             +55 54 99952-7071
           </a>
@@ -407,28 +353,12 @@ function Index() {
       {/* HABILIDADES */}
       <section id="habilidades" className="mx-auto max-w-6xl px-5 py-20">
         <SectionTitle
-          eyebrow="Tech Stack"
-          title="Habilidades"
-          subtitle="Tecnologias, ferramentas e competências que uso no dia a dia."
+          eyebrow={t.skills.eyebrow}
+          title={t.skills.title}
+          subtitle={t.skills.subtitle}
         />
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {[
-            "Java",
-            "Python",
-            "SQL / MySQL",
-            "Oracle PL/SQL",
-            "APIs REST",
-            "HTML5",
-            "CSS3",
-            "JavaScript",
-            "TypeScript",
-            "React",
-            "MongoDB",
-            "Git",
-            "Flask",
-            "Qt Designer",
-            "Excel Avançado",
-          ].map((s) => (
+          {t.skills.techList.map((s) => (
             <div
               key={s}
               className="surface-card rounded-xl px-4 py-3 text-center text-sm font-medium"
@@ -438,19 +368,9 @@ function Index() {
           ))}
         </div>
 
-        <h3 className="mt-12 font-display text-lg font-semibold">Outras Competências</h3>
+        <h3 className="mt-12 font-display text-lg font-semibold">{t.skills.otherTitle}</h3>
         <div className="mt-4 flex flex-wrap gap-2">
-          {[
-            "Programação de Produção",
-            "Planejamento & Sequenciamento",
-            "Indicadores e KPIs",
-            "Programação Orientada a Objetos",
-            "Arquitetura em camadas",
-            "Machine Learning",
-            "Análise de Dados",
-            "Montagem e Manutenção de Hardware",
-            "Inglês Nível B2",
-          ].map((s) => (
+          {t.skills.otherList.map((s) => (
             <Chip key={s} tone="industry">
               {s}
             </Chip>
@@ -460,31 +380,10 @@ function Index() {
 
       {/* FORMACAO */}
       <section id="formacao" className="mx-auto max-w-6xl px-5 py-20">
-        <SectionTitle eyebrow="Estudos" title="Formação & Certificações" />
+        <SectionTitle eyebrow={t.formation.eyebrow} title={t.formation.title} />
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="grid gap-4">
-            {[
-              {
-                title: "Técnico em Informática – Senac RS",
-                period: "Mar 2024 – Dez 2025",
-                text: "Desenvolvimento de software com projetos back-end e front-end: Python, MySQL, HTML, CSS e JavaScript.",
-              },
-              {
-                title: "Ciência de Dados – Udemy",
-                period: "Set 2025 – Atual",
-                text: "Análise de dados e Machine Learning aplicados a problemas reais.",
-              },
-              {
-                title: "Inglês – Básico ao Avançado – Senac RS",
-                period: "Mar 2021 – Dez 2025",
-                text: "Quatro anos de formação em inglês, nível B2.",
-              },
-              {
-                title: "Ensino Médio – E.E.E.M Cônego João Batista Sorg",
-                period: "Jan 2024 – Dez 2026",
-                text: "",
-              },
-            ].map((f) => (
+            {t.formation.education.map((f) => (
               <div key={f.title} className="surface-card rounded-2xl p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="font-display text-base font-semibold">{f.title}</h3>
@@ -499,20 +398,10 @@ function Index() {
           <div className="surface-card rounded-2xl p-6">
             <div className="flex items-center gap-3">
               <Cpu className="size-5 text-primary" />
-              <h3 className="font-display text-lg font-semibold">Cursos & Certificações</h3>
+              <h3 className="font-display text-lg font-semibold">{t.formation.certificationsTitle}</h3>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {[
-                ["Excel – Básico ao Avançado", "Senac RS"],
-                ["Programação em Java", "Hora de Codar"],
-                ["Conceitos Básicos de Redes", "Cisco"],
-                ["Banco de Dados: Oracle PL/SQL", "IFSUL"],
-                ["Estruturas de Dados com Java", "Udemy"],
-                ["Introdução à Cibersegurança", "Cisco"],
-                ["Algoritmos", "Curso em Vídeo"],
-                ["Java Básico", "Curso em Vídeo"],
-                ["Intro. Ciência de Dados", "Open Academy"],
-              ].map(([c, org]) => (
+              {t.formation.certifications.map(([c, org]) => (
                 <div key={c} className="rounded-xl bg-secondary/50 p-3">
                   <p className="text-sm font-medium">{c}</p>
                   <p className="text-xs text-muted-foreground">{org}</p>
@@ -526,38 +415,48 @@ function Index() {
       {/* CONTATO */}
       <section id="contato" className="mx-auto max-w-6xl px-5 py-20">
         <SectionTitle
-          eyebrow="Vamos conversar"
-          title="Entre em Contato"
-          subtitle="Vamos transformar ideias e processos em soluções de software."
+          eyebrow={t.contact.eyebrow}
+          title={t.contact.title}
+          subtitle={t.contact.subtitle}
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { icon: MessageCircle, label: "WhatsApp", value: "+55 54 99952-7071", href: WHATSAPP },
+            {
+              icon: MessageCircle,
+              label: t.contact.whatsapp,
+              value: "+55 54 99952-7071",
+              href: WHATSAPP,
+            },
             {
               icon: Mail,
-              label: "Email",
+              label: t.contact.email,
               value: "giordanastumm7@gmail.com",
               href: "mailto:giordanastumm7@gmail.com",
             },
             {
               icon: Instagram,
-              label: "Instagram Profissional",
+              label: t.contact.instagramPro,
               value: "@stack__solutions",
               href: "https://instagram.com/stack__solutions",
             },
             {
               icon: Instagram,
-              label: "Instagram Pessoal",
+              label: t.contact.instagramPersonal,
               value: "@giordana__stumm",
               href: "https://instagram.com/giordana__stumm",
             },
             {
               icon: Linkedin,
-              label: "LinkedIn",
+              label: t.contact.linkedin,
               value: "Giordana Stumm",
               href: "https://www.linkedin.com/in/giordana-stumm",
             },
-            { icon: Github, label: "GitHub", value: "@gio0000", href: "https://github.com/gio0000" },
+            {
+              icon: Github,
+              label: t.contact.github,
+              value: "@gio0000",
+              href: "https://github.com/gio0000",
+            },
           ].map((c) => (
             <a
               key={c.label}
@@ -577,7 +476,7 @@ function Index() {
         <div className="mt-8">
           <Button variant="hero" size="lg" asChild>
             <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">
-              Fale comigo no WhatsApp
+              {t.contact.cta}
             </a>
           </Button>
         </div>
@@ -585,14 +484,9 @@ function Index() {
 
       <footer className="border-t border-border/60 py-10">
         <div className="mx-auto max-w-6xl px-5">
-          <p className="font-display text-base font-semibold">Stack Solutions</p>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            Soluções em desenvolvimento de software, sistemas web, dados e manutenção de
-            computadores.
-          </p>
-          <p className="mt-6 text-xs text-muted-foreground">
-            Desenvolvido por Giordana.dev · © 2026 Stack Solutions. Todos os direitos reservados.
-          </p>
+          <p className="font-display text-base font-semibold">{t.footer.company}</p>
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground">{t.footer.description}</p>
+          <p className="mt-6 text-xs text-muted-foreground">{t.footer.copyright}</p>
         </div>
       </footer>
     </div>
